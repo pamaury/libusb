@@ -29,6 +29,7 @@ OS_WINDOWS_SRC = libusb-1.0.def libusb-1.0.rc \
 		 os/windows_common.h os/windows_common.c \
 		 os/windows_usbdk.h os/windows_usbdk.c \
 		 os/windows_winusb.h os/windows_winusb.c
+OS_REDIR_SRC = os/redir.c
 
 if OS_DARWIN
 OS_SRC = $(OS_DARWIN_SRC)
@@ -53,6 +54,11 @@ if OS_EMSCRIPTEN
 noinst_LTLIBRARIES = libusb_emscripten.la
 libusb_emscripten_la_SOURCES = $(OS_EMSCRIPTEN_SRC)
 libusb_1_0_la_LIBADD = libusb_emscripten.la
+endif
+
+
+if OS_REDIR
+OS_SRC = $(OS_REDIR_SRC)
 endif
 
 if OS_NETBSD

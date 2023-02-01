@@ -140,6 +140,25 @@ wasm32-**)
 	;;
 esac
 
+AC_MSG_CHECKING([if USB redirection backend is enabled])
+AC_ARG_ENABLE([redir],
+	[AS_HELP_STRING([--enable-redir], [use USB redirection backend instead of native OS backend [default=no]])],
+	[enable_redir=$enableval], [enable_redir=auto])
+dnl save the native backend because it contains important information about features to enable on the host
+native_backend=$backend
+case $enable_redir in
+no)
+	AC_MSG_RESULT([no])
+	;;
+yes)
+	AC_MSG_RESULT([yes])
+	backend=redir
+	;;
+*)
+	AC_MSG_ERROR([unknown value])
+	;;
+esac
+
 if test "x$platform" = xposix; then
 	AC_DEFINE([PLATFORM_POSIX], [1], [Define to 1 if compiling for a POSIX platform.])
 	AC_CHECK_TYPES([nfds_t], [], [], [[#include <poll.h>]])
@@ -255,7 +274,7 @@ if test "x$platform" = xposix && test "x$backend" != xdarwin; then
 fi
 
 dnl eventfd support
-if test "x$backend" = xlinux || test "x$backend" = xsunos; then
+if test "x$backend" = xlinux || test "x$backend" = xsunos || ( test "x$backend" = xredir && test "x$native_backend" = xlinux ); then
 	AC_ARG_ENABLE([eventfd],
 		[AS_HELP_STRING([--enable-eventfd], [use eventfd for signalling [default=auto]])],
 		[use_eventfd=$enableval],
@@ -293,7 +312,7 @@ if test "x$backend" = xlinux || test "x$backend" = xsunos; then
 fi
 
 dnl timerfd support
-if test "x$backend" = xlinux || test "x$backend" = xsunos; then
+if test "x$backend" = xlinux || test "x$backend" = xsunos || ( test "x$backend" = xredir && test "x$native_backend" = xlinux ); then
 	AC_ARG_ENABLE([timerfd],
 		[AS_HELP_STRING([--enable-timerfd], [use timerfd for timing [default=auto]])],
 		[use_timerfd=$enableval],
@@ -387,6 +406,7 @@ AM_CONDITIONAL([OS_OPENBSD], [test "x$backend" = xopenbsd])
 AM_CONDITIONAL([OS_SUNOS], [test "x$backend" = xsunos])
 AM_CONDITIONAL([OS_WINDOWS], [test "x$backend" = xwindows])
 AM_CONDITIONAL([OS_EMSCRIPTEN], [test "x$backend" = xemscripten])
+AM_CONDITIONAL([OS_REDIR], [test "x$backend" = xredir])
 AM_CONDITIONAL([PLATFORM_POSIX], [test "x$platform" = xposix])
 AM_CONDITIONAL([PLATFORM_WINDOWS], [test "x$platform" = xwindows])
 AM_CONDITIONAL([USE_UDEV], [test "x$use_udev" = xyes])
