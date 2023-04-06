@@ -1009,7 +1009,7 @@ struct usbi_os_backend {
 	 *
 	 * Optional, should be implemented by backends with hotplug support.
 	 */
-	void (*hotplug_poll)(void);
+	void (*hotplug_poll)(struct libusb_context *ctx);
 
 	/* Wrap a platform-specific device handle for I/O and other USB
 	 * operations. The device handle is preallocated for you.
